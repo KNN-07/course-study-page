@@ -1,7 +1,7 @@
 # `course.json` schema
 
 One JSON object. `m` is always a 0-based index into `modules`. Fields marked * are required.
-Text fields accept light markup: `` `code` ``, `**bold**`, fenced code blocks, line breaks,
+Text fields accept light markup: `` `code` ``, `**bold**`, `*italic*`, fenced code blocks, line breaks,
 and `$...$` / `$$...$$` maths. Everything else is shown literally, so HTML is not needed and
 not rendered.
 
