@@ -1,0 +1,400 @@
+{
+  "course": {
+    "title": "Discrete Mathematics: Logic & Proofs",
+    "code": "[COURSE CODE]",
+    "overview": "Propositional logic, logical equivalence, quantifiers and the main proof techniques. Each module asks you to commit to an answer before it explains anything, then tests you until the level is earned.",
+    "objectives": [
+      "Build and read truth tables for compound propositions",
+      "Simplify expressions with the standard equivalence laws",
+      "Negate statements with nested quantifiers",
+      "Choose and write a direct, contrapositive, contradiction or induction proof"
+    ],
+    "target_level": 4,
+    "lang": "en"
+  },
+  "modules": [
+    {
+      "title": "Propositional logic",
+      "short": "Propositions",
+      "source": "[Lecture 1 slides]",
+      "primer": {
+        "q": "A sign says \"If you are under 12, you ride free.\" An adult pays full fare. Has the sign been broken?",
+        "a": "No. The sign only promises something for under-12s. When the hypothesis is false the implication is true whatever else happens."
+      },
+      "summary": "A proposition is a statement that is either true or false. Connectives combine propositions, and a truth table lists the value of a compound proposition for every assignment of its parts. The implication p → q is false in exactly one case: p true and q false.",
+      "concepts": [
+        { "term": "Proposition", "def": "A declarative statement with exactly one truth value.", "example": "\"7 is prime\" → T" },
+        { "term": "Implication", "def": "p → q is false only when p is true and q is false.", "example": "F → anything ≡ T" },
+        { "term": "Contrapositive", "def": "¬q → ¬p. It is equivalent to p → q. The converse and inverse are not.", "example": "p → q ≡ ¬q → ¬p" }
+      ],
+      "table": {
+        "toc": "Truth table",
+        "caption": "Truth table: the five connectives",
+        "headers": ["p", "q", "¬p", "p ∧ q", "p ∨ q", "p → q", "p ↔ q"],
+        "rows": [
+          ["T", "T", "F", "T", "T", "T", "T"],
+          ["T", "F", "F", "F", "T", "F", "F"],
+          ["F", "T", "T", "F", "T", "T", "F"],
+          ["F", "F", "T", "F", "F", "T", "T"]
+        ]
+      },
+      "pitfalls": [
+        "Treating p → q as false when p is false. It is vacuously true.",
+        "Mixing up the converse (q → p) with the contrapositive (¬q → ¬p)."
+      ],
+      "sheet": [
+        { "k": "Implication", "v": "p → q ≡ ¬p ∨ q" },
+        { "k": "Contrapositive", "v": "¬q → ¬p" },
+        { "k": "Converse", "v": "q → p" },
+        { "k": "Inverse", "v": "¬p → ¬q" }
+      ]
+    },
+    {
+      "title": "Logical equivalence",
+      "short": "Equivalence",
+      "source": "[Lecture 2 slides]",
+      "primer": {
+        "q": "\"It is not the case that Ana is both tall and fast.\" Does that mean Ana is neither tall nor fast?",
+        "a": "No. It means she fails at least one of the two: not tall, or not fast. Negating an 'and' gives an 'or'."
+      },
+      "summary": "Two propositions are logically equivalent (≡) when they have the same truth value under every assignment. Equivalence laws let you rewrite and simplify without building a full truth table.",
+      "concepts": [
+        { "term": "Tautology", "def": "True under every assignment of its variables.", "example": "p ∨ ¬p" },
+        { "term": "Contradiction", "def": "False under every assignment of its variables.", "example": "p ∧ ¬p" },
+        { "term": "Equivalence", "def": "p ≡ q exactly when p ↔ q is a tautology.", "example": "¬¬p ≡ p" }
+      ],
+      "table": {
+        "toc": "Equivalence laws",
+        "caption": "Equivalence laws",
+        "headers": ["Law", "Form"],
+        "rows": [
+          ["De Morgan", "¬(p ∧ q) ≡ ¬p ∨ ¬q"],
+          ["De Morgan", "¬(p ∨ q) ≡ ¬p ∧ ¬q"],
+          ["Implication", "p → q ≡ ¬p ∨ q"],
+          ["Distributive", "p ∧ (q ∨ r) ≡ (p ∧ q) ∨ (p ∧ r)"],
+          ["Absorption", "p ∨ (p ∧ q) ≡ p"],
+          ["Double negation", "¬¬p ≡ p"]
+        ]
+      },
+      "pitfalls": [
+        "Forgetting to flip ∧ and ∨ when pushing a negation inward.",
+        "Applying several laws in one line without naming them, which loses marks in proofs."
+      ],
+      "sheet": [
+        { "k": "De Morgan", "v": "¬(p ∧ q) ≡ ¬p ∨ ¬q" },
+        { "k": "De Morgan", "v": "¬(p ∨ q) ≡ ¬p ∧ ¬q" },
+        { "k": "Absorption", "v": "p ∨ (p ∧ q) ≡ p" },
+        { "k": "Distributive", "v": "p ∧ (q ∨ r) ≡ (p∧q) ∨ (p∧r)" }
+      ]
+    },
+    {
+      "title": "Predicates & quantifiers",
+      "short": "Quantifiers",
+      "source": "[Lecture 3 slides]",
+      "primer": {
+        "q": "\"Everyone has a birthday\" and \"There is a day that is everyone's birthday\" use the same words. Do they say the same thing?",
+        "a": "No. The first is ∀ person ∃ day, which is true. The second is ∃ day ∀ person, which is false. The order of quantifiers changes the meaning."
+      },
+      "summary": "A predicate P(x) becomes a proposition once x is fixed or quantified. ∀ says \"for every x in the domain\" and ∃ says \"for at least one x\". The domain and the order of nested quantifiers both change the meaning.",
+      "concepts": [
+        { "term": "Universal ∀", "def": "∀x P(x) is true when P(x) holds for every x in the domain.", "example": "∀x ∈ ℤ (x² ≥ 0)" },
+        { "term": "Existential ∃", "def": "∃x P(x) is true when P(x) holds for at least one x.", "example": "∃x ∈ ℤ (x + 3 = 0)" },
+        { "term": "Order matters", "def": "Swapping ∀ and ∃ in a nested statement can change its truth value.", "example": "∀x ∃y (y > x) ≢ ∃y ∀x (y > x)" }
+      ],
+      "table": {
+        "toc": "Negation rules",
+        "caption": "Negating quantifiers",
+        "headers": ["Statement", "Negation", "In words"],
+        "rows": [
+          ["∀x P(x)", "∃x ¬P(x)", "Some x fails P"],
+          ["∃x P(x)", "∀x ¬P(x)", "No x satisfies P"],
+          ["∀x ∃y P(x,y)", "∃x ∀y ¬P(x,y)", "Some x has no matching y"]
+        ]
+      },
+      "pitfalls": [
+        "Negating ∀ into ∀¬ instead of ∃¬.",
+        "Forgetting the domain: ∃x (x² = 2) is true over ℝ but false over ℚ."
+      ],
+      "sheet": [
+        { "k": "Negate ∀", "v": "¬∀x P(x) ≡ ∃x ¬P(x)" },
+        { "k": "Negate ∃", "v": "¬∃x P(x) ≡ ∀x ¬P(x)" },
+        { "k": "Nested", "v": "¬∀x∃y P ≡ ∃x∀y ¬P" }
+      ]
+    },
+    {
+      "title": "Proof techniques",
+      "short": "Proofs",
+      "source": "[Lecture 4 slides]",
+      "primer": {
+        "q": "You must prove \"if n² is even then n is even\". Starting from \"n² = 2k\" gets stuck at a square root. What else could you assume instead?",
+        "a": "Assume n is odd and show n² is odd. That is the contrapositive, and it is the same claim."
+      },
+      "summary": "Pick the proof shape from the statement. A direct proof follows the implication forward. Contrapositive and contradiction work from a negation. Induction proves a claim for every natural number from a base case and a step.",
+      "concepts": [
+        { "term": "Direct", "def": "Assume p, chain known facts until you reach q.", "example": "n odd → n² odd" },
+        { "term": "Contrapositive", "def": "Prove ¬q → ¬p instead of p → q.", "example": "n² even → n even" },
+        { "term": "Induction", "def": "Prove P(base), then prove P(k) → P(k+1) for every k ≥ base.", "example": "1 + … + n = n(n+1)/2" }
+      ],
+      "table": {
+        "toc": "Choosing a technique",
+        "caption": "Which technique, when",
+        "headers": ["Technique", "You assume", "You show"],
+        "rows": [
+          ["Direct", "p", "q"],
+          ["Contrapositive", "¬q", "¬p"],
+          ["Contradiction", "¬(claim)", "a contradiction"],
+          ["Induction", "P(k)", "P(k+1), plus base case"]
+        ]
+      },
+      "pitfalls": [
+        "Proving the converse by accident (assuming q, reaching p).",
+        "Skipping the base case in induction, or never using the hypothesis P(k) in the step."
+      ],
+      "sheet": [
+        { "k": "Direct", "v": "assume p ⇒ show q" },
+        { "k": "Contrapositive", "v": "assume ¬q ⇒ show ¬p" },
+        { "k": "Contradiction", "v": "assume ¬P ⇒ reach ⊥" },
+        { "k": "Induction", "v": "P(1), P(k) → P(k+1)" }
+      ]
+    }
+  ],
+  "diagnostic": [
+    { "m": 0, "difficulty": 1, "q": "p is true and q is false. What is the value of p → q?", "options": ["True", "False", "It has no value", "Same as q → p"], "answer": 1, "why": "This is the single row where an implication is false." },
+    { "m": 1, "difficulty": 2, "q": "Which expression always has the same truth value as ¬(p ∧ q)?", "options": ["¬p ∧ ¬q", "p ∨ q", "¬p ∨ ¬q", "¬p ∧ q"], "answer": 2, "why": "De Morgan: the negation distributes and ∧ becomes ∨." },
+    { "m": 2, "difficulty": 2, "q": "Which is the negation of \"every student passed\"?", "options": ["No student passed", "Some student did not pass", "Some student passed", "Every student failed"], "answer": 1, "why": "¬∀x P(x) ≡ ∃x ¬P(x). One failure is enough." },
+    { "m": 3, "difficulty": 3, "q": "An induction step proves P(k) → P(k+1) for all k ≥ 1, but the base case P(1) is false. What has been shown about P(n)?", "options": ["P(n) holds for all n ≥ 2", "P(n) holds for all n ≥ 1", "Nothing about any particular n", "P(n) is false for all n"], "answer": 2, "why": "The step only passes truth along. With no true starting case it establishes no instance, and it does not show falsity either." }
+  ],
+  "quiz": [
+    {
+      "m": 0, "kind": "predict", "difficulty": 1,
+      "q": "p is false and q is true. What is the value of p → q?",
+      "options": ["False", "True", "Undefined", "The same as q → p"],
+      "answer": 1,
+      "why": "An implication with a false hypothesis is vacuously true. It is tempting to call it false because nothing was 'caused', but the only false row is p true, q false.",
+      "probes": {
+        "0": "List the one row of the truth table where an implication is false. Is this that row?",
+        "2": "A truth table assigns a value on every row. Which value does the definition give when the hypothesis fails?",
+        "3": "Work out q → p for these values. Is it equal to what the definition gives for p → q here?"
+      },
+      "defend": { "q": "So \"if 2 + 2 = 5 then the moon is cheese\" is a true statement?", "a": "Yes. The implication claims something only about cases where the hypothesis holds. There are none, so the claim is never violated." }
+    },
+    {
+      "m": 0, "kind": "connect", "difficulty": 2,
+      "q": "Which statement always has the same truth value as p → q?",
+      "options": ["¬q → ¬p", "q → p", "¬p → ¬q", "p ∧ ¬q"],
+      "answer": 0,
+      "why": "The contrapositive matches p → q on every row. The converse q → p and the inverse ¬p → ¬q match each other, not the original.",
+      "probes": {
+        "1": "Take p false, q true. What is p → q? What is the statement you chose?",
+        "2": "Take p false, q true. Evaluate both sides. Do they agree?",
+        "3": "On the row p true, q false, what is p → q and what is your choice?"
+      }
+    },
+    {
+      "m": 0, "kind": "flaw", "difficulty": 3,
+      "q": "A student writes: \"If it is a square then it has four sides. This shape has four sides, so it is a square.\" Which error is this?",
+      "options": ["Using the inverse as if it were the original", "Denying the hypothesis", "Using the converse as if it were the original", "A false premise"],
+      "answer": 2,
+      "why": "The argument runs from q back to p, which is the converse. The premise itself is true, and nothing was negated, so it is not the inverse.",
+      "probes": {
+        "0": "Does the argument negate anything? Write the student's inference in the form ? → ?.",
+        "1": "Which fact did the student start from: about being a square, or about having four sides?",
+        "3": "Is \"a square has four sides\" actually false? If not, the fault is in the step, not the premise."
+      }
+    },
+    {
+      "m": 1, "kind": "apply", "difficulty": 1,
+      "q": "¬(p ∨ q) is equivalent to:",
+      "options": ["¬p ∨ ¬q", "p ∧ q", "¬p ∨ q", "¬p ∧ ¬q"],
+      "answer": 3,
+      "why": "De Morgan: push the negation in and flip ∨ to ∧. Keeping the ∨ is the usual slip.",
+      "probes": {
+        "0": "Take p true, q false. Evaluate ¬(p ∨ q), then your choice. Same value?",
+        "1": "Where did the negations go? Try p false, q false on both.",
+        "2": "Take p false, q true. Evaluate the original and your choice."
+      }
+    },
+    {
+      "m": 1, "kind": "predict", "difficulty": 2,
+      "q": "p ∨ (p ∧ q) simplifies to:",
+      "options": ["p ∧ q", "p", "q", "p ∨ q"],
+      "answer": 1,
+      "why": "Absorption. If p is true the whole expression is true. If p is false then p ∧ q is false too. q never matters.",
+      "probes": {
+        "0": "Take p true, q false. What is the original expression? What is your answer?",
+        "2": "Take p true, q false. Does the original depend on q at all?",
+        "3": "Take p false, q true. Evaluate the original and your answer."
+      }
+    },
+    {
+      "m": 1, "kind": "flaw", "difficulty": 3,
+      "q": "A proof contains the line ¬(p → q) ≡ ¬p → ¬q. What is wrong with it?",
+      "options": ["Nothing, it is the inverse law", "Negation was distributed over → as if it were a connective that allows that", "It should read ¬q → ¬p", "It is missing a double negation"],
+      "answer": 1,
+      "why": "Negation does not distribute over →. Rewrite first: ¬(p → q) ≡ ¬(¬p ∨ q) ≡ p ∧ ¬q. The contrapositive ¬q → ¬p is equivalent to p → q itself, not to its negation.",
+      "probes": {
+        "0": "Take p false, q true. Evaluate each side of the line. Are they equal?",
+        "2": "¬q → ¬p is equivalent to which statement: p → q, or its negation?",
+        "3": "Where would a double negation come from? Rewrite p → q with ∨ first and see what appears."
+      },
+      "defend": { "q": "But the two sides agree when p and q are both true. Is that not enough?", "a": "Equivalence needs agreement on every row. They differ at p false, q true: the left side is false and the right side is true." }
+    },
+    {
+      "m": 2, "kind": "predict", "difficulty": 2,
+      "q": "Over the integers, which statement is true?",
+      "options": ["∃y ∀x (y > x)", "∀x (x² > 0)", "∀x ∃y (y > x)", "∃x (x² < 0)"],
+      "answer": 2,
+      "why": "For any x, y = x + 1 works. No single y beats every integer, and x = 0 breaks x² > 0.",
+      "probes": {
+        "0": "Name the y. Is it greater than y + 1?",
+        "1": "Try every small integer, including the one between −1 and 1.",
+        "3": "Can a square of an integer be negative? Try one."
+      }
+    },
+    {
+      "m": 2, "kind": "apply", "difficulty": 2,
+      "q": "What is the negation of ∀x ∃y (x + y = 0)?",
+      "options": ["∀x ∃y (x + y ≠ 0)", "∃x ∃y (x + y ≠ 0)", "∀x ∀y (x + y ≠ 0)", "∃x ∀y (x + y ≠ 0)"],
+      "answer": 3,
+      "why": "Each quantifier flips as the negation passes it, and the predicate is negated last. Leaving a quantifier unflipped is the usual error.",
+      "probes": {
+        "0": "What does ¬∀x become on its own? Did the first quantifier change in your choice?",
+        "1": "After ¬ passes ∀x, it meets ∃y. What does ¬∃y become?",
+        "2": "The original says every x has a partner. To deny it, how many x without a partner do you need?"
+      }
+    },
+    {
+      "m": 2, "kind": "explain", "difficulty": 3,
+      "q": "∃x (x² = 2) is true over ℝ and false over ℚ. What does this show?",
+      "options": ["The predicate is ambiguous", "A quantified statement has no truth value until its domain is fixed", "∃ behaves like ∀ on infinite domains", "The statement is neither true nor false"],
+      "answer": 1,
+      "why": "The quantifier ranges over a domain, and changing the domain changes which witnesses exist. The predicate x² = 2 itself is perfectly precise.",
+      "probes": {
+        "0": "Is there any doubt about what x² = 2 means for a given x? What is it that changed between the two cases?",
+        "2": "Over ℚ, is the statement true for all x, for some x, or for none?",
+        "3": "Once you say 'over ℝ', can you decide it? Then is it really without a truth value?"
+      }
+    },
+    {
+      "m": 3, "kind": "apply", "difficulty": 2,
+      "q": "Best approach for \"if n² is even, then n is even\"?",
+      "options": ["Contrapositive", "Direct proof", "Induction on n", "Checking n = 2, 4, 6"],
+      "answer": 0,
+      "why": "Prove \"if n is odd then n² is odd\": n = 2k + 1 gives n² = 2(2k² + 2k) + 1. A direct start from n² = 2k leads to a square root with nowhere to go.",
+      "probes": {
+        "1": "Start it: n² = 2k. What is your next line, and is n an integer expression of k?",
+        "2": "What would P(k) → P(k+1) look like here? Does knowing the claim for k help with k + 1?",
+        "3": "How many cases does \"for all n\" cover, and how many did you check?"
+      }
+    },
+    {
+      "m": 3, "kind": "flaw", "difficulty": 3,
+      "q": "An induction proof of P(n) for n ≥ 1 shows P(1), then writes: \"Assume P(k+1). Then … so P(k) holds.\" What is wrong?",
+      "options": ["The base case should be P(0)", "The step runs backwards, from k + 1 down to k", "Induction cannot use an assumption", "Nothing, the step is valid"],
+      "answer": 1,
+      "why": "The step must carry truth upward, P(k) → P(k+1). Going downward from an assumed P(k+1) never reaches any case above the base.",
+      "probes": {
+        "0": "The claim is for n ≥ 1. Which is the first case that needs proving?",
+        "2": "What is the inductive hypothesis, if not an assumption?",
+        "3": "You know P(1). Using only the step as written, can you get P(2)?"
+      }
+    },
+    {
+      "m": 3, "kind": "connect", "difficulty": 2,
+      "q": "A proof by contradiction of p → q begins by assuming:",
+      "options": ["¬p", "¬q → ¬p", "q", "p ∧ ¬q"],
+      "answer": 3,
+      "why": "Contradiction assumes the negation of the whole claim, and ¬(p → q) ≡ p ∧ ¬q. Assuming ¬q alone and deriving ¬p is the contrapositive method.",
+      "probes": {
+        "0": "What is the negation of p → q? Rewrite p → q with ∨ and negate it.",
+        "1": "That is a statement equivalent to the claim. Would assuming the claim help you contradict it?",
+        "2": "If you assume q, which direction are you heading: toward the claim or its converse?"
+      }
+    }
+  ],
+  "fill": [
+    { "m": 0, "difficulty": 1, "prompt": "The converse of p → q is ___.", "accept": ["q → p", "q->p", "q implies p", "if q then p"], "hint": "Swap hypothesis and conclusion.", "answer": "q → p" },
+    { "m": 0, "difficulty": 2, "prompt": "Rewrite p → q using only ¬ and ∨.", "accept": ["¬p ∨ q", "~p v q", "not p or q", "!p || q", "¬pvq", "q ∨ ¬p"], "hint": "It is false only when p is true and q is false.", "answer": "¬p ∨ q" },
+    { "m": 1, "difficulty": 1, "prompt": "¬(p ∧ q) ≡ ¬p ___ ¬q. Which connective goes in the blank?", "accept": ["∨", "v", "or", "\\/", "||"], "hint": "De Morgan flips the connective.", "answer": "∨ (or)" },
+    { "m": 1, "difficulty": 3, "prompt": "Simplify ¬(p → q) to an expression with no → and no outer negation.", "accept": ["p ∧ ¬q", "p ^ ~q", "p and not q", "p & !q", "p && !q", "¬q ∧ p"], "hint": "Rewrite the implication with ∨, then apply De Morgan.", "answer": "p ∧ ¬q" },
+    { "m": 2, "difficulty": 1, "prompt": "¬∀x P(x) ≡ ___ ¬P(x). Fill in the quantifier.", "accept": ["∃x", "∃", "exists x", "there exists x", "ex"], "hint": "\"Not all\" means \"some do not\".", "answer": "∃x" },
+    { "m": 3, "difficulty": 1, "prompt": "After the base case, the inductive step proves P(k) → ___.", "accept": ["p(k+1)", "re:^p\\s*\\(\\s*k\\s*\\+\\s*1\\s*\\)$"], "hint": "The next case.", "answer": "P(k+1)" }
+  ],
+  "flashcards": [
+    { "m": 0, "front": "When is p → q false?", "back": "Only when p is true and q is false." },
+    { "m": 0, "front": "Which of converse, inverse, contrapositive is equivalent to p → q?", "back": "Only the contrapositive, ¬q → ¬p." },
+    { "m": 0, "front": "When is p ↔ q true?", "back": "When p and q have the same truth value." },
+    { "m": 1, "front": "¬(p ∧ q) ≡ ?", "back": "¬p ∨ ¬q (De Morgan)" },
+    { "m": 1, "front": "Why is p ∨ (p ∧ q) just p?", "back": "If p is true the ∨ is true. If p is false, p ∧ q is false as well. q never changes the result." },
+    { "m": 1, "front": "How do you test whether two propositions are equivalent?", "back": "Same truth value on every row, or equivalently p ↔ q is a tautology." },
+    { "m": 2, "front": "Negate ∀x P(x)", "back": "∃x ¬P(x)" },
+    { "m": 2, "front": "Negate ∃x P(x)", "back": "∀x ¬P(x)" },
+    { "m": 2, "front": "Why are ∀x ∃y and ∃y ∀x different?", "back": "In ∀x ∃y the y may depend on x. In ∃y ∀x one y must work for every x." },
+    { "m": 3, "front": "The two parts of an induction proof", "back": "Base case P(1), and inductive step P(k) → P(k+1)." },
+    { "m": 3, "front": "What do you assume in a proof by contradiction?", "back": "The negation of the whole claim. Then derive a contradiction." },
+    { "m": 3, "front": "When is the contrapositive easier than a direct proof?", "back": "When ¬q gives you something concrete to compute with and p does not." }
+  ],
+  "worked": [
+    {
+      "m": 0, "difficulty": 2,
+      "title": "Is ((p → q) ∧ p) → q a tautology?",
+      "steps": [
+        { "text": "It can only be false if (p → q) ∧ p is T and q is F.", "why": "Implication", "ask": "In which single case is an implication false? Apply that to the outer →." },
+        { "text": "(p → q) ∧ p is T, so p is T and p → q is T.", "why": "Conjunction", "ask": "What does a true ∧ tell you about each part?" },
+        { "text": "p T and p → q T force q to be T.", "why": "Implication", "ask": "With p true, what must q be for p → q to hold?" },
+        { "text": "q cannot be both T and F, so it is never false: a tautology.", "why": "Modus ponens", "ask": "Compare what you now know about q with what step 1 required." }
+      ]
+    },
+    {
+      "m": 1, "difficulty": 2,
+      "title": "Show that ¬(p → q) ≡ p ∧ ¬q.",
+      "steps": [
+        { "text": "¬(p → q) ≡ ¬(¬p ∨ q)", "why": "Implication law", "ask": "Negation does not distribute over →. What can you replace p → q with first?" },
+        { "text": "≡ ¬¬p ∧ ¬q", "why": "De Morgan", "ask": "Which law pushes a negation through ∨?" },
+        { "text": "≡ p ∧ ¬q", "why": "Double negation", "ask": "What is left to tidy up?" }
+      ]
+    },
+    {
+      "m": 2, "difficulty": 2,
+      "title": "Negate ∀x ∃y (x + y = 0) and say it in words.",
+      "steps": [
+        { "text": "¬∀x ∃y (x + y = 0)", "why": "Start", "ask": "Write the negation as one symbol in front before moving anything." },
+        { "text": "≡ ∃x ¬∃y (x + y = 0)", "why": "Negate ∀", "ask": "What does ¬ do to the first quantifier it meets?" },
+        { "text": "≡ ∃x ∀y (x + y ≠ 0)", "why": "Negate ∃", "ask": "And to the second? What happens to the predicate last?" },
+        { "text": "Some x has no y that sums with it to 0.", "why": "In words", "ask": "Read it aloud without symbols." }
+      ]
+    },
+    {
+      "m": 3, "difficulty": 3,
+      "title": "Prove 1 + 2 + … + n = n(n+1)/2 for all n ≥ 1.",
+      "steps": [
+        { "text": "n = 1: LHS = 1, RHS = 1·2/2 = 1.", "why": "Base case", "ask": "Which technique fits a claim about every n ≥ 1, and what is its first obligation?" },
+        { "text": "Assume 1 + … + k = k(k+1)/2.", "why": "Hypothesis", "ask": "State exactly what you are allowed to assume in the step." },
+        { "text": "1 + … + k + (k+1) = k(k+1)/2 + (k+1)", "why": "Use hypothesis", "ask": "Write the left side of P(k+1). Where does the hypothesis fit inside it?" },
+        { "text": "= (k+1)(k+2)/2, which is P(k+1).", "why": "Factor", "ask": "What is the target right-hand side for k + 1? Factor toward it." },
+        { "text": "So P(n) holds for every n ≥ 1.", "why": "Induction", "ask": "Which two facts together give the conclusion?" }
+      ]
+    }
+  ],
+  "explain": [
+    { "m": 0, "prompt": "Explain to a classmate why an implication with a false hypothesis counts as true.", "rubric": ["States that p → q is false only when p is true and q is false", "Says the statement makes no claim when p is false, so it cannot be violated", "Gives a concrete everyday or numeric example"] },
+    { "m": 1, "prompt": "Explain why ¬(p ∧ q) is ¬p ∨ ¬q and not ¬p ∧ ¬q.", "rubric": ["Says p ∧ q fails as soon as one part fails", "Shows a row (for example p true, q false) where the two candidates differ", "Names the law as De Morgan"] },
+    { "m": 2, "prompt": "Explain, with an example, why swapping ∀ and ∃ can change the truth of a statement.", "rubric": ["Says that in ∀x ∃y the y may depend on x", "Says that in ∃y ∀x a single y must work for all x", "Gives a statement that is true one way and false the other", "Fixes a domain for the example"] },
+    { "m": 3, "prompt": "Explain why an induction proof needs both the base case and the step.", "rubric": ["Says the step only passes truth from k to k + 1", "Says the base case supplies the first true instance", "Describes what goes wrong with the step alone or the base alone"] }
+  ],
+  "integrative": [
+    {
+      "title": "Negate, then prove",
+      "prompt": "Consider the claim: for every integer n, if n² is odd then n is odd. (a) Write the claim with quantifiers. (b) Write its negation in simplified form. (c) Prove the claim.",
+      "modules": [0, 1, 2, 3],
+      "rubric": [
+        "(a) ∀n ∈ ℤ (n² odd → n odd)",
+        "(b) ∃n ∈ ℤ (n² odd ∧ n even), with the quantifier flipped and the implication negated to p ∧ ¬q",
+        "(c) Chooses contrapositive (or contradiction) and says so",
+        "(c) Writes n = 2k and derives n² = 2(2k²), so n² is even",
+        "(c) Concludes by stating that the contrapositive is equivalent to the claim"
+      ],
+      "solution": "(a) ∀n ∈ ℤ (n² odd → n odd). (b) ∃n ∈ ℤ (n² odd ∧ n even). (c) Contrapositive: suppose n is even, n = 2k. Then n² = 4k² = 2(2k²), which is even. So n even → n² even, which is equivalent to n² odd → n odd."
+    }
+  ]
+}
