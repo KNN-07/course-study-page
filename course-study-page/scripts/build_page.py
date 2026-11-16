@@ -21,7 +21,38 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from validate_course import validate  # noqa: E402
+from validate_course import coverage, iter_figures, validate  # noqa: E402
+
+MIME = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".gif": "image/gif",
+        ".webp": "image/webp", ".svg": "image/svg+xml"}
+FIG_MAX = 700_000      # one picture
+FIG_TOTAL = 9_000_000  # all pictures; hosted pages are usually capped around 16 MB
+
+
+def embed_figures(data: dict, base: Path):
+    """Inline every local figure as a data URI so the page stays one file."""
+    import base64
+    problems, total, cache = [], 0, {}
+    for loc, f in iter_figures(data):
+        src = str(f.get("src") or "")
+        if not src or src.startswith(("data:image/", "https://")):
+            continue
+        p = (base / src).resolve()
+        if src not in cache:
+            try:
+                raw = p.read_bytes()
+            except OSError as e:
+                problems.append(f"{loc}: cannot read {src}: {e}")
+                continue
+            if len(raw) > FIG_MAX:
+                problems.append(f"{loc}: {src} is {len(raw) // 1024} KB. Downscale or crop it below {FIG_MAX // 1000} KB")
+                continue
+            total += len(raw)
+            cache[src] = f"data:{MIME.get(p.suffix.lower(), 'image/png')};base64," + base64.b64encode(raw).decode("ascii")
+        f["src"] = cache[src]
+    if total > FIG_TOTAL:
+        problems.append(f"figures total {total // 1_000_000} MB. Keep the page under {FIG_TOTAL // 1_000_000} MB of pictures")
+    return problems
 
 KATEX = ('<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>\n'
          '<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js" '
@@ -87,7 +118,10 @@ def build(course_path: Path, out_path: Path, template_path: Path, force: bool = 
             manifest = json.loads(mp.read_text(encoding="utf-8"))
         except Exception:
             manifest = None
-    errors, warnings, stats = validate(data, manifest)
+    errors, warnings, stats = validate(data, manifest, course_path.parent)
+    uncovered = coverage(data, manifest)
+    if not errors:
+        errors += embed_figures(data, course_path.parent)
     for e in errors:
         print("ERROR  " + e)
     if errors and not force:
@@ -104,6 +138,10 @@ def build(course_path: Path, out_path: Path, template_path: Path, force: bool = 
         data["id"] = f"{slug}-{h8(str(course.get('title')) + '|' + str(course.get('code')))}"
     if manifest and not data.get("sources"):
         data["sources"] = [f["path"] for f in manifest.get("files", []) if f.get("extracted") or f.get("status") == "needs_native_read"][:60]
+    if uncovered:
+        data["coverage"] = {"uncovered": uncovered}
+    else:
+        data.pop("coverage", None)
     data["built"] = time.strftime("%Y-%m-%d")
     if "math" not in course:
         course["math"] = has_math(data)
@@ -125,6 +163,8 @@ def build(course_path: Path, out_path: Path, template_path: Path, force: bool = 
 
     print(f"Built {out_path}  ({out_path.stat().st_size / 1024:.0f} KB)")
     print("  " + ", ".join(f"{k} {v}" for k, v in stats.items()) + (", math on" if course["math"] else ""))
+    if uncovered:
+        print(f"  {len(uncovered)} course file(s) not covered. The page tells the student which.")
     if warnings:
         print(f"  {len(warnings)} warning(s). Run validate_course.py to see them.")
     return 0

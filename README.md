@@ -16,13 +16,22 @@ tutors in conversation. This one bakes the same method into a page the student k
 
 - course overview with a skill map and a "do this next" card
 - a diagnostic that places each module before anything is taught
-- module pages: predict-first primer, summary, key ideas (with a hide-definitions self-test),
-  reference tables, pitfalls
+- module pages you can actually learn from: predict-first primer, summary, a full lesson in
+  sections with worked examples and check-yourself questions, key ideas (with a
+  hide-definitions self-test), reference tables, pitfalls
 - practice, one item at a time: quiz with per-option probes, short answer, flashcards,
   step-by-step worked problems, teach-back against a rubric
 - a spaced review queue across modules
 - a final assessment that unlocks when every module is at target, plus a mock
 - cheat sheet, progress view, save and restore codes, and a hand-off block for live tutoring
+- answer options shuffled on every showing, so positions cannot be memorised
+- an exam date that compresses the review schedule and sets a daily target
+- diagrams from your slides embedded in the page
+- a source line on every question, a flag button, and a list of course files the page does
+  not cover
+- ready-made requests to paste back to your agent: more questions on weak modules, a check
+  of flagged questions, and strict marking of a written answer
+- search, personal notes, keyboard shortcuts, backup download and Anki export
 
 See `course-study-page/examples/study.example.html` for a built example.
 

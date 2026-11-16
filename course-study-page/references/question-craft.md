@@ -4,6 +4,30 @@ The page can only be as Socratic as the items you write. A deck of definition-re
 produces a student who recognises phrases. The aim is a student who can reason with the
 material, so most items should make them **predict, explain, find a flaw, apply or connect**.
 
+## The lesson (`reading`)
+
+Each module page is also the student's reading material. The `reading` sections are where
+the module is actually taught, in full sentences, at the length a good set of lecture notes
+would use: usually 400-1200 words in three to six sections. The summary and the key-idea
+cards are the recap, not the lesson.
+
+- Teach in the order the course does, in the course's notation, from the materials. Slides
+  are often bare bullet points. Your job is to restore the explanation that was spoken
+  over them, using the speaker notes, the textbook readings and the worked solutions in
+  the folder. Do not bring in content the course does not cover.
+- Explain why, not only what. For each idea: what problem it solves, the definition, a
+  concrete example worked through, then the case that trips people up.
+- Put at least one fully worked example inside the text of each module.
+- Write it yourself. Do not paste long passages from a textbook or paper in the folder.
+  Short definitions and formulas stated as the course states them are fine.
+- Use the block markup: blank lines between paragraphs, `- ` lists, `1. ` steps, `> ` for
+  the one line worth boxing, fenced code. Add a `figure` where the course uses a diagram.
+- End one or two sections with a `check`: a question the student answers before reading on.
+  Ask for a prediction or an application of what the section just said, not a repeat of
+  its last sentence. This keeps the reading active, in line with the rest of the page.
+- Do not put the answers to quiz items in the lesson word for word. The lesson teaches the
+  idea and the quiz tests it on a different case.
+
 ## The six kinds
 
 Set `kind` on every quiz item. Across the quiz, keep `recall` under about a third.

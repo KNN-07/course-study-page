@@ -44,6 +44,8 @@ AV_EXT = {".mp3", ".wav", ".m4a", ".ogg", ".flac", ".mp4", ".mov", ".mkv", ".avi
 LEGACY_EXT = {".doc", ".ppt", ".xls", ".rtf", ".pages", ".key", ".numbers", ".epub", ".djvu"}
 ARCHIVE_EXT = {".zip", ".rar", ".7z", ".tar", ".gz", ".tgz"}
 
+BATCH_WORDS = 12000
+
 ROLE_HINTS = [
     ("syllabus", r"syllabus|outline|schedule|course[-_ ]?info|handbook|module[-_ ]?guide|overview"),
     ("solution", r"solution|soln|answers?|answer[-_ ]?key|marking|mark[-_ ]?scheme|rubric"),
@@ -287,6 +289,49 @@ def extract_pdf(p: Path):
     return None, None, reason
 
 
+RASTER = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp"}
+
+
+def extract_media(p: Path, rel: str, root: Path, out: Path):
+    """Save the pictures embedded in a .pptx or .docx. Returns [{path, where}] with
+    paths relative to the course folder, ready to use as a figure src."""
+    pairs = []
+    with zipfile.ZipFile(p) as z:
+        names = set(z.namelist())
+        if p.suffix.lower() == ".pptx":
+            slides = sorted((n for n in names if re.fullmatch(r"ppt/slides/slide\d+\.xml", n)), key=natural_key)
+            for i, name in enumerate(slides, 1):
+                rels = "ppt/slides/_rels/" + name.rsplit("/", 1)[-1] + ".rels"
+                if rels not in names:
+                    continue
+                for r in ET.fromstring(z.read(rels)):
+                    tgt = r.attrib.get("Target", "")
+                    if "media/" in tgt:
+                        pairs.append((f"slide{i}", "ppt/media/" + tgt.rsplit("/", 1)[-1]))
+        else:
+            pairs = [("doc", n) for n in sorted(names, key=natural_key) if n.startswith("word/media/")]
+        figs, seen, counts = [], set(), {}
+        for where, name in pairs:
+            ext = Path(name).suffix.lower()
+            if ext not in RASTER or name not in names:
+                continue
+            data = z.read(name)
+            digest = hashlib.sha1(data).hexdigest()
+            if len(data) < 4000 or len(data) > 4_000_000 or digest in seen:
+                continue  # icons, bullets, logos repeated on every slide, oversized photos
+            seen.add(digest)
+            counts[where] = counts.get(where, 0) + 1
+            target = out / "media" / rel / f"{where}-{counts[where]}{ext}"
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+            try:
+                shown = target.relative_to(root).as_posix()
+            except ValueError:
+                shown = str(target)
+            figs.append({"path": shown, "where": where, "bytes": len(data)})
+    return figs
+
+
 def guess_role(rel: str, kind: str) -> str:
     low = rel.lower()
     for role, pat in ROLE_HINTS:
@@ -389,6 +434,13 @@ def scan(root: Path, out: Path):
         except Exception as e:  # one bad file must not stop the scan
             status, text, note = "error", None, f"{type(e).__name__}: {e}"
 
+        if ext in (".pptx", ".docx") and status == "ok":
+            try:
+                figs = extract_media(p, rel, root, out)
+                if figs:
+                    entry["figures"] = figs
+            except Exception as e:
+                note = (note + "; " if note else "") + f"pictures not extracted: {e}"
         entry.update(kind=kind, role=guess_role(rel, kind), status=status)
         if units:
             entry["units"] = units
@@ -439,6 +491,28 @@ def outline(man) -> str:
         lines += [f"- `{e['path']}`: {e.get('note', e['status'])}" for e in attention] + [""]
     if man["removed"]:
         lines += ["## Removed since the last scan", ""] + [f"- `{p}`" for p in man["removed"]] + [""]
+    readable = [e for e in man["files"] if e.get("extracted")]
+    if t["words"] > BATCH_WORDS:
+        lines += ["## Reading batches", "",
+                  f"Too much for one pass. Read one batch at a time (about {BATCH_WORDS:,} words each) and write notes "
+                  "to `.study/notes-<batch>.md` before starting the next.", ""]
+        batch, size, n = [], 0, 1
+        for e in readable + [None]:
+            if e is None or (batch and size + e["words"] > BATCH_WORDS):
+                lines.append(f"{n}. " + ", ".join(f"`{x['path']}`" for x in batch) + f" ({size:,} words)")
+                batch, size, n = [], 0, n + 1
+            if e is not None:
+                batch.append(e)
+                size += e["words"]
+        lines.append("")
+    figs = [e for e in man["files"] if e.get("figures")]
+    if figs:
+        lines += ["## Pictures extracted from slides and documents", "",
+                  "Look at the ones on slides you are writing about. A useful diagram can go on the page as a "
+                  "`figure` (see references/schema.md).", ""]
+        for e in figs:
+            lines.append(f"- `{e['path']}`: " + ", ".join(f"`{f['path']}`" for f in e["figures"][:40]))
+        lines.append("")
     by_role = {}
     for e in man["files"]:
         by_role.setdefault(e["role"], []).append(e)

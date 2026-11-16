@@ -56,6 +56,21 @@ After a credited check the item moves up a box and comes due after 10 minutes, 1
 3 days, 7 days, then 16 days. The review queue mixes due items from all modules in random
 order, up to 20 at a time. A miss sends the item back to the first box.
 
+### With an exam date
+
+When an exam date is set (in `course.exam_date` or by the student), each interval is capped
+at a fraction of the time remaining: 10%, 25%, 50% and 80% for the later boxes, never less
+than 10 minutes. Every item therefore comes back before the exam instead of after it. The
+overview shows the days left and a daily target: the number of clean answers still needed
+for every item to be secure, divided by the days. With three days or fewer it advises
+sitting the mock first.
+
+## Shuffled options
+
+Quiz and diagnostic options are shuffled each time an item is shown, so a student cannot
+learn an answer by its position. Combined with the request for fresh questions on the
+Progress page, this keeps "secure" from meaning "memorised this page".
+
 ## Difficulty control
 
 - **Easier**: items of difficulty 1-2, easiest first.
@@ -83,8 +98,14 @@ storage is unavailable the page still works for the session. The Progress page o
 
 - **Save state**: a code that restores everything in another browser.
 - **Resume from**: paste a code.
+- **Download backup file**: the same code as a file.
 - **Hand-off block**: a readable summary beginning `resume from:` with the skill map and
   the recorded misses, for continuing with a live tutor.
+- **More questions**: a request listing the weak modules and misses, for the agent to add
+  fresh items.
+- **Flagged questions**: the items the student flagged, with their notes and sources.
+
+Flags, personal notes and the exam date are part of the saved state.
 
 ## Changing the model
 

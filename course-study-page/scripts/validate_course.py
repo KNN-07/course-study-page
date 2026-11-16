@@ -26,11 +26,71 @@ def _s(v) -> bool:
     return isinstance(v, str) and v.strip() != ""
 
 
-def validate(data, manifest=None):
+FIG_EXT = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}
+COVER_ROLES = {"lecture", "notes", "reading", "assignment", "exam"}
+
+
+def iter_figures(node, path="course"):
+    """Yield (location, figure dict) for every `figure` object and `figures` list in the data."""
+    if isinstance(node, dict):
+        for k, v in node.items():
+            here = f"{path}.{k}"
+            if k == "figure" and isinstance(v, dict):
+                yield here, v
+            elif k == "figures" and isinstance(v, list):
+                for i, f in enumerate(v):
+                    if isinstance(f, dict):
+                        yield f"{here}[{i}]", f
+            else:
+                yield from iter_figures(v, here)
+    elif isinstance(node, list):
+        for i, v in enumerate(node):
+            yield from iter_figures(v, f"{path}[{i}]")
+
+
+def coverage(data, manifest):
+    """Course files of a teaching role that no module source and no item src mentions."""
+    if not manifest:
+        return []
+    cited = []
+    for m in data.get("modules") or []:
+        if isinstance(m, dict):
+            cited.append(str(m.get("source") or ""))
+    for lst in ITEM_LISTS:
+        for it in data.get(lst) or []:
+            if isinstance(it, dict):
+                cited.append(str(it.get("src") or ""))
+    blob = " ".join(cited).lower()
+    out = []
+    for f in manifest.get("files", []):
+        if f.get("role") not in COVER_ROLES or not (f.get("extracted") or f.get("status") == "needs_native_read"):
+            continue
+        name = Path(f["path"]).name.lower()
+        stem = Path(name).stem
+        if name not in blob and not (len(stem) > 2 and stem in blob):
+            out.append(f["path"])
+    return out
+
+
+def validate(data, manifest=None, base=None):
     errors, warnings = [], []
     E, W = errors.append, warnings.append
     if not isinstance(data, dict):
         return ["top level must be a JSON object"], [], {}
+
+    for loc, f in iter_figures(data):
+        src = f.get("src")
+        if not _s(src):
+            E(f"{loc}.src: required")
+            continue
+        if not _s(f.get("alt")):
+            E(f"{loc}.alt: describe the picture for students who cannot see it")
+        if src.startswith(("data:image/", "https://")):
+            continue
+        if Path(src).suffix.lower() not in FIG_EXT:
+            E(f"{loc}.src: '{src}' is not a png, jpg, gif, webp or svg")
+        elif base is not None and not (Path(base) / src).is_file():
+            E(f"{loc}.src: file not found: {src} (paths are relative to course.json)")
 
     course = data.get("course")
     if not isinstance(course, dict):
@@ -45,6 +105,8 @@ def validate(data, manifest=None):
     tl = course.get("target_level", 4)
     if not isinstance(tl, int) or not 1 <= tl <= 5:
         E("course.target_level: must be an integer 1-5 (default 4)")
+    if course.get("exam_date") and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(course["exam_date"])):
+        E("course.exam_date: must be YYYY-MM-DD (omit it if unknown; the student can set it on the page)")
     if course.get("accent") and not re.fullmatch(r"#[0-9a-fA-F]{6}", str(course["accent"])):
         E("course.accent: must be a #RRGGBB colour")
 
@@ -71,6 +133,25 @@ def validate(data, manifest=None):
         pr = m.get("primer")
         if not (isinstance(pr, dict) and _s(pr.get("q")) and _s(pr.get("a"))):
             W(f"{p}.primer: add a predict-first question {{q, a}} shown before the summary")
+        reading = m.get("reading")
+        if reading is not None and not isinstance(reading, list):
+            E(f"{p}.reading: must be a list of sections {{heading, body}}")
+            reading = []
+        rwords = 0
+        for j, sec in enumerate(reading or []):
+            if not (isinstance(sec, dict) and _s(sec.get("body"))):
+                E(f"{p}.reading[{j}].body: required")
+                continue
+            rwords += len(sec["body"].split())
+            ck = sec.get("check")
+            if ck is not None and not (isinstance(ck, dict) and _s(ck.get("q")) and _s(ck.get("a"))):
+                E(f"{p}.reading[{j}].check: needs q and a")
+        if not reading:
+            W(f"{p}.reading: no lesson. The module page should be something to learn from, not only key-idea cards")
+        elif rwords < 250:
+            W(f"{p}.reading: {rwords} words. A lesson usually needs 400-1200 to explain the module properly")
+        elif not any(isinstance(sec, dict) and sec.get("check") for sec in reading):
+            W(f"{p}.reading: no section has a 'check' question. Add one or two so the reading is not passive")
         cons = m.get("concepts") or []
         if len(cons) < 2:
             W(f"{p}.concepts: fewer than 2 key ideas")
@@ -303,8 +384,20 @@ def validate(data, manifest=None):
         if c["diagnostic"] < 1 and diag:
             W(f"{name}: no diagnostic question, so it always starts at level 0")
 
+    practice = [it for lst in ("quiz", "fill", "worked") for it in (data.get(lst) or []) if isinstance(it, dict)]
+    no_src = sum(1 for it in practice if not _s(it.get("src")))
+    if practice and no_src:
+        W(f"{no_src} of {len(practice)} quiz, fill and worked items have no 'src'. "
+          "Say where each one comes from (file and page or slide) so the student can check it")
+    missed = coverage(data, manifest)
+    for p2 in missed[:20]:
+        W(f"coverage: '{p2}' is not cited by any module source or item src. Cover it, or tell the user it was left out")
+    if len(missed) > 20:
+        W(f"coverage: and {len(missed) - 20} more uncited files")
+
     stats = {"modules": n}
     stats.update({k: len(data.get(k) or []) for k in ITEM_LISTS})
+    stats["figures"] = sum(1 for _ in iter_figures(data))
     return errors, warnings, stats
 
 
@@ -333,7 +426,7 @@ def main(argv=None) -> int:
             manifest = json.loads(mp.read_text(encoding="utf-8"))
         except Exception:
             manifest = None
-    errors, warnings, stats = validate(data, manifest)
+    errors, warnings, stats = validate(data, manifest, path.parent)
     if args.json:
         print(json.dumps({"errors": errors, "warnings": warnings, "stats": stats}, indent=2, ensure_ascii=False))
     else:
